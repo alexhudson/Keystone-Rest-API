@@ -116,6 +116,16 @@ function KeystoneRest() {
 
 	self.routes = [];
 
+	/**
+	 * Send an error response
+	 * @param {Object} err Error response object
+	 * @param {Object} res Express response
+	 */
+	var _sendValidationError = function (err, req, res, next) {
+		/*jslint unparam: true */
+		res.status(400);
+		res.json(err);
+	};
 
 	/**
 	 * Send a 404 response
@@ -562,7 +572,11 @@ function KeystoneRest() {
 					console.error(err);
 					console.info(item);
 					if (err) {
-						return _sendError(err, req, res, next);
+						if (err.name === 'ValidatorError') {
+							return _sendValidationError(err, req, res, next);
+						} else {
+							return _sendError(err, req, res, next);
+						}
 					}
 					res.json(item);
 				});
